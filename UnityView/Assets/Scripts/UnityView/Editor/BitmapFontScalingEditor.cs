@@ -2,24 +2,29 @@
 using UnityEditor;
 using System.Collections;
 using UnityEngine.UI;
+using UnityView;
+
 
 [CustomEditor(typeof(BitmapFontScaling))]
 public class BitmapFontScalingEditor :  Editor
 {
-	public override void OnInspectorGUI()
-	{
-		serializedObject.Update();
+    Text text = null;
 
-		BitmapFontScaling script = target as BitmapFontScaling;
+    public override void OnInspectorGUI()
+    {
+        serializedObject.Update();
 
-		Text text = script.GetComponent<Text>();
+        BitmapFontScaling script = target as BitmapFontScaling;
 
-		if( text == null )
-			return;
+        if(text == null)
+            text = script.GetComponent<Text>();
 
-		if( serializedObject.FindProperty("textSize").intValue != text.fontSize )
-			script.OnValidate();
+        if( text == null )
+            return;
 
-		serializedObject.ApplyModifiedProperties();
-	}
+        if( serializedObject.FindProperty("textSize").intValue != text.fontSize )
+            script.OnValidate();
+
+        serializedObject.ApplyModifiedProperties();
+    }
 }

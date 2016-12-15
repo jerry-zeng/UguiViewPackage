@@ -8,8 +8,6 @@ namespace UnityView
     [RequireComponent(typeof(Text))]
     public class TypewriterEffect : MonoBehaviour 
     {
-        public delegate void OnComplete();
-
         private static readonly string[] _uguiSymbols = { "b", "i" }; 
         private static readonly string[] _uguiCloseSymbols = { "b", "i", "size", "color" };
 
@@ -29,12 +27,11 @@ namespace UnityView
         private string _currentText;
         private string _finalText;
         private Coroutine _typeTextCoroutine;
-
-        private OnComplete _onCompleteCallback;
-
+        private System.Action _onCompleteCallback;
 
 
-        public void SetText(string text, float speed = -1) {
+        public void SetText(string text, float speed = -1) 
+        {
             defaultSpeed = speed > 0 ? speed : defaultSpeed;
             _finalText = ReplaceSpeed(text);
             label.text = "";
@@ -46,7 +43,8 @@ namespace UnityView
             _typeTextCoroutine = StartCoroutine(TypeText(text));
         }
 
-        public void SkipTypeText() {
+        public void SkipTypeText() 
+        {
             if (_typeTextCoroutine != null)
                 StopCoroutine(_typeTextCoroutine);
             _typeTextCoroutine = null;
@@ -57,14 +55,17 @@ namespace UnityView
                 _onCompleteCallback();
         }
 
-        public IEnumerator TypeText(string text) {
+        public IEnumerator TypeText(string text) 
+        {
             _currentText = "";
 
             var len = text.Length;
             var speed = defaultSpeed;
             var tagOpened = false;
             var tagType = "";
-            for (var i = 0; i < len; i++) {
+
+            for (var i = 0; i < len; i++) 
+            {
                 if (text[i] == '[' && i + 6 < len && text.Substring(i, 7).Equals("[speed=")) {
                     var parseSpeed = "";
                     for (var j = i + 7; j < len; j++) {
@@ -88,7 +89,8 @@ namespace UnityView
                 }
 
                 var symbolDetected = false;
-                for (var j = 0; j < _uguiSymbols.Length; j++) {
+                for (var j = 0; j < _uguiSymbols.Length; j++) 
+                {
                     var symbol = string.Format("<{0}>", _uguiSymbols[j]);
                     if (text[i] == '<' && i + (1 + _uguiSymbols[j].Length) < len && text.Substring(i, 2 + _uguiSymbols[j].Length).Equals(symbol)) {
                         _currentText += symbol;
@@ -111,7 +113,8 @@ namespace UnityView
                 if (text[i] == '<' && i + 5 < len && text.Substring(i, 6).Equals("<size=")) {
                     var parseSize = "";
                     var size = (float) label.fontSize;
-                    for (var j = i + 6; j < len; j++) {
+                    for (var j = i + 6; j < len; j++) 
+                    {
                         if (text[j] == '>') break;
                         parseSize += text[j];
                     }
@@ -126,7 +129,8 @@ namespace UnityView
                 }
 
                 // exit symbol
-                for (var j = 0; j < _uguiCloseSymbols.Length; j++) {
+                for (var j = 0; j < _uguiCloseSymbols.Length; j++) 
+                {
                     var symbol = string.Format("</{0}>", _uguiCloseSymbols[j]);
                     if (text[i] == '<' && i + (2 + _uguiCloseSymbols[j].Length) < len && text.Substring(i, 3 + _uguiCloseSymbols[j].Length).Equals(symbol)) {
                         _currentText += symbol;
@@ -141,6 +145,7 @@ namespace UnityView
 
                 _currentText += text[i];
                 label.text = _currentText + (tagOpened? string.Format("</{0}>", tagType) : "");
+
                 yield return new WaitForSeconds(speed);
             }
 
@@ -150,7 +155,8 @@ namespace UnityView
                 _onCompleteCallback();
         }
 
-        private string ReplaceSpeed(string text) {
+        private string ReplaceSpeed(string text) 
+        {
             var result = "";
             var len = text.Length;
             for (var i = 0; i < len; i++) {
@@ -172,20 +178,22 @@ namespace UnityView
             return result;
         }
 
-        public bool IsSkippable() {
+        public bool IsSkippable()
+        {
             return _typeTextCoroutine != null;
         }
 
-        public void SetOnComplete(OnComplete onComplete) {
+        public void SetOnComplete(System.Action onComplete)
+        {
             _onCompleteCallback = onComplete;
         }
 
     }
 
 
-    public static class TypewriterEffectUtility {
-
-        public static void TypeText(this Text label, string text, float speed = 0.05f, TypewriterEffect.OnComplete onComplete = null) {
+    public static class TypewriterEffectUtility 
+    {
+        public static void TypeText(this Text label, string text, float speed = 0.05f, System.Action onComplete = null) {
             var typeText = label.GetComponent<TypewriterEffect>();
             if (typeText == null) {
                 typeText = label.gameObject.AddComponent<TypewriterEffect>();
